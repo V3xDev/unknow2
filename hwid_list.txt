@@ -1,0 +1,8 @@
+# Lista de HWIDs Autorizados
+# Adicione um HWID por linha
+# Formato: HWID (sem espaços, sem comentários na mesma linha)
+# Exemplo:
+# A1B2C3D4E5F6G7H8
+# 1234567890ABCDEF
+
+# Adicione os HWIDs autorizados abaixo:
